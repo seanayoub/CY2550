@@ -1,0 +1,58 @@
+#! /usr/bin/env python3
+
+from argparse import ArgumentParser
+import random as rnd
+
+NUMBERS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+SYMBOLS = ['~', '!', '@', '#', '$', '%', '^', '&', '.', ':', ';']
+
+# create parser
+parser = ArgumentParser(description = "generate a secure, memorable password using the XKCD method")
+
+# add arguments
+parser.add_argument("-w", "--words", default = 4, type = int, help = "include X words in the password (default = 4)")
+parser.add_argument("-c", "--caps", default = 0, type = int, help = "capitalize the first letter of X random words (default = 0)")
+parser.add_argument("-n", "--numbers", default = 0, type = int, help = "insert X random numbers in the password (default = 0)")
+parser.add_argument("-s", "--symbols", default = 0, type = int, help = "insert X random symbols in the password (default = 0)")
+
+# parse command line arguments
+args = parser.parse_args()
+
+# store all words in a list
+word_list = []
+with open("words.txt", "r") as f:
+	for word in f:
+		word_list.append(word)
+
+# generate words for password		
+words = rnd.sample(word_list, args.words)
+
+# remove \n from strings
+stripped_words = []
+for item in words:
+	word = item.strip('\n')
+	stripped_words.append(word)
+
+# capitalize random words
+if args.caps > 0:
+	for i in range(args.caps):
+		stripped_words[i] = stripped_words[i].capitalize()
+
+# add numbers
+if args.numbers > 0:
+	for i in range(args.numbers):
+		num = rnd.sample(NUMBERS, 1)
+		stripped_words[i] = num[0] + stripped_words[i]
+
+# add symbols
+if args.symbols > 0:
+	for i in range(args.symbols):
+		sym = rnd.sample(SYMBOLS, 1)
+		stripped_words[i] = stripped_words[i] + sym[0]
+
+# shuffle password
+rnd.shuffle(stripped_words)
+
+# concatenate and return password
+password = "".join(stripped_words)
+print(password)
